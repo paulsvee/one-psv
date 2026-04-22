@@ -1,0 +1,35 @@
+
+> one-psv@1.0.0 dev
+> next dev -p 3002
+
+  ▲ Next.js 14.2.5
+  - Local:        http://localhost:3002
+
+ ✓ Starting...
+ ✓ Ready in 1839ms
+ ○ Compiling / ...
+ ✓ Compiled / in 2.2s (465 modules)
+ GET / 200 in 2327ms
+ GET /_next/static/webpack/45e7198d71928024.webpack.hot-update.json 404 in 2349ms
+ GET / 200 in 58ms
+ ✓ Compiled /api/folders in 102ms (260 modules)
+ GET /api/folders 200 in 163ms
+ GET /api/folders 200 in 8ms
+ ✓ Compiled /api/settings in 62ms (262 modules)
+ ✓ Compiled (264 modules)
+ GET /api/folders 200 in 158ms
+ GET /api/memos 200 in 163ms
+ GET /api/settings 200 in 167ms
+ HEAD / 200 in 47ms
+ GET /api/settings 200 in 9ms
+ GET /api/memos?folderId=fbk2fd6zu27mmvtrkjw 200 in 9ms
+ HEAD / 200 in 60ms
+ HEAD / 200 in 59ms
+ HEAD / 200 in 28ms
+ HEAD / 200 in 43ms
+ HEAD / 200 in 58ms
+ POST /api/memos 200 in 17ms
+ HEAD / 200 in 43ms
+ HEAD / 200 in 60ms
+ HEAD / 200 in 34ms
+ HEAD / 200 in 49ms

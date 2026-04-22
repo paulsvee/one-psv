@@ -1,0 +1,542 @@
+"use client";
+
+import React, { useEffect, useRef, useState, useCallback } from "react";
+
+// ── Types ──────────────────────────────────────────────────────
+type Folder = { id: string; name: string; createdAt: number };
+type Memo   = { id: string; folderId: string | null; date: string; text: string; createdAt: number };
+
+type AppState = {
+  version: 1;
+  folders: Folder[];
+  memos: Memo[];
+  activeFolder: string;
+};
+
+// ── Storage ────────────────────────────────────────────────────
+const STORAGE_KEY = "one_psv_v1";
+
+function loadState(): AppState {
+  if (typeof window === "undefined") return seed();
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return seed();
+    const d = JSON.parse(raw);
+    if (d?.version !== 1) return seed();
+    return d as AppState;
+  } catch { return seed(); }
+}
+
+function seed(): AppState {
+  return { version: 1, folders: [], memos: [], activeFolder: "all" };
+}
+
+// debounce save (투두 방식)
+let _saveTimer: ReturnType<typeof setTimeout> | null = null;
+function debouncedSave(state: AppState) {
+  if (_saveTimer) clearTimeout(_saveTimer);
+  _saveTimer = setTimeout(() => {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch {}
+  }, 300);
+}
+
+// ── Utils ──────────────────────────────────────────────────────
+const uid = () => Math.random().toString(36).slice(2) + Date.now().toString(36);
+
+function todayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+}
+function monthKey(d: string) { return d.slice(0,7); }
+function dayNum(d: string)   { return parseInt(d.slice(8,10), 10); }
+function fmtMonth(ym: string) {
+  const [y, m] = ym.split("-");
+  return `${y}년 ${parseInt(m,10)}월`;
+}
+
+// ── Pill ──────────────────────────────────────────────────────
+function Pill({ memo, onDelete, onUpdate }: {
+  memo: Memo;
+  onDelete: (id: string) => void;
+  onUpdate: (id: string, text: string) => void;
+}) {
+  const [editing, setEditing] = useState(false);
+  const spanRef = useRef<HTMLSpanElement>(null);
+  const origRef = useRef(memo.text);
+
+  const startEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    origRef.current = memo.text;
+    setEditing(true);
+    setTimeout(() => {
+      const el = spanRef.current;
+      if (!el) return;
+      el.focus();
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      window.getSelection()?.removeAllRanges();
+      window.getSelection()?.addRange(range);
+    }, 0);
+  };
+
+  const finish = () => {
+    setEditing(false);
+    const newText = spanRef.current?.textContent?.trim() ?? "";
+    if (newText && newText !== origRef.current) onUpdate(memo.id, newText);
+    else if (spanRef.current) spanRef.current.textContent = origRef.current;
+  };
+
+  return (
+    <div
+      onDoubleClick={startEdit}
+      onMouseEnter={e => {
+        if (!editing) e.currentTarget.style.borderColor = "rgba(255,255,255,0.22)";
+        const x = e.currentTarget.querySelector<HTMLElement>(".px");
+        if (x) x.style.opacity = "1";
+      }}
+      onMouseLeave={e => {
+        if (!editing) e.currentTarget.style.borderColor = "var(--border2)";
+        const x = e.currentTarget.querySelector<HTMLElement>(".px");
+        if (x) x.style.opacity = "0";
+      }}
+      style={{
+        display: "inline-flex", alignItems: "center", gap: 7,
+        padding: "6px 13px", borderRadius: 20,
+        border: `1px solid ${editing ? "var(--accent)" : "var(--border2)"}`,
+        background: editing ? "rgba(184,255,106,0.07)" : "var(--surface2)",
+        fontSize: 13, color: "var(--text)",
+        whiteSpace: "nowrap", flexShrink: 0,
+        transition: "border-color 0.15s, background 0.15s",
+        userSelect: editing ? "text" : "none",
+        cursor: "default",
+      }}
+    >
+      <span
+        ref={spanRef}
+        contentEditable={editing}
+        suppressContentEditableWarning
+        onBlur={finish}
+        onKeyDown={e => {
+          if (e.key === "Enter") { e.preventDefault(); spanRef.current?.blur(); }
+          if (e.key === "Escape") {
+            if (spanRef.current) spanRef.current.textContent = origRef.current;
+            setEditing(false);
+          }
+          e.stopPropagation();
+        }}
+        style={{ outline: "none" }}
+      >{memo.text}</span>
+      <button className="px"
+        onClick={e => { e.stopPropagation(); onDelete(memo.id); }}
+        style={{
+          background: "none", border: "none", cursor: "pointer",
+          color: "var(--text3)", fontSize: 11, padding: "0 1px",
+          lineHeight: 1, opacity: 0, transition: "opacity 0.15s, color 0.15s",
+        }}
+        onMouseEnter={e => (e.currentTarget.style.color = "#ff6b6b")}
+        onMouseLeave={e => (e.currentTarget.style.color = "var(--text3)")}
+      >✕</button>
+    </div>
+  );
+}
+
+// ── DayRow ────────────────────────────────────────────────────
+function DayRow({ dateStr, memos, onDelete, onUpdate, onClickEmpty }: {
+  dateStr: string; memos: Memo[];
+  onDelete: (id: string) => void;
+  onUpdate: (id: string, text: string) => void;
+  onClickEmpty: (d: string) => void;
+}) {
+  const today = dateStr === todayStr();
+  return (
+    <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+      <div style={{
+        fontFamily: "'JetBrains Mono',monospace", fontSize: 11,
+        color: today ? "var(--accent)" : "var(--text3)",
+        fontWeight: today ? 500 : 400,
+        minWidth: 28, paddingTop: 8, flexShrink: 0, textAlign: "right",
+      }}>
+        {String(dayNum(dateStr)).padStart(2,"0")}
+      </div>
+      <div
+        onClick={e => { if (e.target === e.currentTarget) onClickEmpty(dateStr); }}
+        style={{
+          flex: 1, display: "flex", flexWrap: "nowrap", gap: 7,
+          overflowX: "auto", padding: "3px 0 6px",
+          scrollbarWidth: "none", alignItems: "flex-start",
+          minHeight: 36, cursor: "default",
+        }}
+      >
+        {[...memos].sort((a,b) => a.createdAt - b.createdAt).map(m => (
+          <Pill key={m.id} memo={m} onDelete={onDelete} onUpdate={onUpdate} />
+        ))}
+        {memos.length === 0 && (
+          <span onClick={() => onClickEmpty(dateStr)}
+            style={{ fontSize: 12, color: "var(--text3)", paddingTop: 7, cursor: "text", userSelect: "none" }}>
+            —
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── MonthPanel ────────────────────────────────────────────────
+function MonthPanel({ mk, byDay, onDelete, onUpdate, onClickEmpty }: {
+  mk: string; byDay: Record<string,Memo[]>;
+  onDelete: (id:string)=>void; onUpdate: (id:string,text:string)=>void;
+  onClickEmpty: (d:string)=>void;
+}) {
+  const days = Object.keys(byDay).sort().reverse();
+  const total = days.reduce((s,d) => s + byDay[d].length, 0);
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 10 }} data-month={mk}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:11, color:"var(--text3)", letterSpacing:"0.07em" }}>
+          {fmtMonth(mk)}
+        </span>
+        <div style={{ flex:1, height:1, background:"var(--border)" }}/>
+        <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:10, color:"var(--text3)" }}>{total}</span>
+      </div>
+      {days.map(d => (
+        <DayRow key={d} dateStr={d} memos={byDay[d]}
+          onDelete={onDelete} onUpdate={onUpdate} onClickEmpty={onClickEmpty} />
+      ))}
+    </div>
+  );
+}
+
+// ── FolderModal ───────────────────────────────────────────────
+function FolderModal({ onConfirm, onCancel }: { onConfirm:(n:string)=>void; onCancel:()=>void }) {
+  const [val, setVal] = useState("");
+  const ref = useRef<HTMLInputElement>(null);
+  useEffect(() => { ref.current?.focus(); }, []);
+  return (
+    <div onClick={e=>{if(e.target===e.currentTarget)onCancel();}}
+      style={{ position:"fixed",inset:0,zIndex:999,background:"rgba(0,0,0,0.65)",
+        display:"flex",alignItems:"center",justifyContent:"center" }}>
+      <div onClick={e=>e.stopPropagation()}
+        style={{ background:"var(--surface)",border:"1px solid var(--border2)",
+          borderRadius:14,padding:"22px 22px 18px",minWidth:280,
+          boxShadow:"0 20px 60px rgba(0,0,0,0.6)" }}>
+        <div style={{ fontSize:14,fontWeight:600,color:"var(--text)",marginBottom:14 }}>새 폴더</div>
+        <input ref={ref} value={val} onChange={e=>setVal(e.target.value)}
+          placeholder="폴더 이름" maxLength={40}
+          onKeyDown={e=>{ if(e.key==="Enter"&&val.trim())onConfirm(val.trim()); if(e.key==="Escape")onCancel(); }}
+          style={{ width:"100%",padding:"9px 12px",background:"var(--surface2)",
+            border:"1px solid var(--border2)",borderRadius:8,color:"var(--text)",
+            fontSize:13,outline:"none",fontFamily:"'Noto Sans KR',sans-serif" }}
+          onFocus={e=>(e.target.style.borderColor="var(--accent)")}
+          onBlur={e=>(e.target.style.borderColor="var(--border2)")}
+        />
+        <div style={{ display:"flex",gap:8,marginTop:14,justifyContent:"flex-end" }}>
+          <button onClick={onCancel}
+            style={{ padding:"7px 14px",borderRadius:7,border:"1px solid var(--border2)",
+              background:"none",color:"var(--text2)",cursor:"pointer",fontSize:12,
+              fontFamily:"'Noto Sans KR',sans-serif" }}>취소</button>
+          <button onClick={()=>val.trim()&&onConfirm(val.trim())} disabled={!val.trim()}
+            style={{ padding:"7px 14px",borderRadius:7,border:"none",
+              background:val.trim()?"var(--accent)":"var(--surface2)",
+              color:val.trim()?"#111":"var(--text3)",
+              cursor:val.trim()?"pointer":"default",
+              fontSize:12,fontWeight:600,fontFamily:"'Noto Sans KR',sans-serif" }}>만들기</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── DeleteFolderModal ─────────────────────────────────────────
+function DeleteFolderModal({ name, onConfirm, onCancel }: { name:string;onConfirm:()=>void;onCancel:()=>void }) {
+  return (
+    <div onClick={e=>{if(e.target===e.currentTarget)onCancel();}}
+      style={{ position:"fixed",inset:0,zIndex:999,background:"rgba(0,0,0,0.65)",
+        display:"flex",alignItems:"center",justifyContent:"center" }}>
+      <div onClick={e=>e.stopPropagation()}
+        style={{ background:"var(--surface)",border:"1px solid var(--border2)",
+          borderRadius:14,padding:"22px 22px 18px",minWidth:280,
+          boxShadow:"0 20px 60px rgba(0,0,0,0.6)" }}>
+        <div style={{ fontSize:14,fontWeight:600,color:"var(--text)",marginBottom:8 }}>폴더 삭제</div>
+        <div style={{ fontSize:13,color:"var(--text2)",marginBottom:20 }}>
+          <span style={{ color:"var(--text)",fontWeight:500 }}>"{name}"</span> 폴더를 삭제할까요?<br/>
+          <span style={{ fontSize:12,color:"var(--text3)" }}>메모는 All로 이동됩니다.</span>
+        </div>
+        <div style={{ display:"flex",gap:8,justifyContent:"flex-end" }}>
+          <button onClick={onCancel}
+            style={{ padding:"7px 14px",borderRadius:7,border:"1px solid var(--border2)",
+              background:"none",color:"var(--text2)",cursor:"pointer",fontSize:12,
+              fontFamily:"'Noto Sans KR',sans-serif" }}>취소</button>
+          <button onClick={onConfirm}
+            style={{ padding:"7px 14px",borderRadius:7,border:"none",
+              background:"#ff5252",color:"#fff",cursor:"pointer",
+              fontSize:12,fontWeight:600,fontFamily:"'Noto Sans KR',sans-serif" }}>삭제</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── FolderItem ────────────────────────────────────────────────
+function FolderItem({ folder, isActive, memoCount, onSelect, onDelete, onRename }: {
+  folder: Folder; isActive: boolean; memoCount: number;
+  onSelect:()=>void; onDelete:()=>void; onRename:(n:string)=>void;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [val, setVal] = useState(folder.name);
+  const ref = useRef<HTMLInputElement>(null);
+
+  const commit = () => {
+    setEditing(false);
+    if (val.trim() && val.trim() !== folder.name) onRename(val.trim());
+    else setVal(folder.name);
+  };
+
+  if (editing) return (
+    <input ref={ref} value={val} onChange={e=>setVal(e.target.value)} onBlur={commit} autoFocus
+      onKeyDown={e=>{ if(e.key==="Enter")commit(); if(e.key==="Escape"){setVal(folder.name);setEditing(false);} }}
+      style={{ width:"100%",padding:"7px 10px",margin:"1px 0",
+        background:"rgba(255,255,255,0.07)",border:"1px solid var(--border2)",
+        borderRadius:7,color:"var(--text)",fontSize:13,outline:"none",
+        fontFamily:"'Noto Sans KR',sans-serif" }}
+    />
+  );
+
+  return (
+    <div style={{ position:"relative",display:"flex",alignItems:"center" }}
+      onMouseEnter={e=>{ const b=e.currentTarget.querySelector<HTMLElement>(".fdel"); if(b) b.style.opacity="1"; }}
+      onMouseLeave={e=>{ const b=e.currentTarget.querySelector<HTMLElement>(".fdel"); if(b) b.style.opacity="0"; }}
+    >
+      <button onClick={onSelect} onDoubleClick={e=>{e.stopPropagation();setEditing(true);}}
+        style={{ display:"flex",alignItems:"center",gap:8,padding:"8px 10px",paddingRight:28,
+          borderRadius:8,border:"none",
+          background:isActive?"rgba(255,255,255,0.09)":"none",
+          color:isActive?"var(--text)":"var(--text2)",
+          cursor:"pointer",fontSize:13,fontWeight:isActive?500:400,
+          textAlign:"left",width:"100%",fontFamily:"'Noto Sans KR',sans-serif",transition:"background 0.15s" }}
+        onMouseEnter={e=>{ if(!isActive)e.currentTarget.style.background="rgba(255,255,255,0.05)"; }}
+        onMouseLeave={e=>{ if(!isActive)e.currentTarget.style.background="none"; }}
+      >
+        <span style={{ fontSize:14 }}>📁</span>
+        <span style={{ flex:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap" }}>{folder.name}</span>
+        {memoCount > 0 && <span style={{ fontSize:10,color:"var(--text3)",flexShrink:0 }}>{memoCount}</span>}
+      </button>
+      <button className="fdel" onClick={e=>{e.stopPropagation();onDelete();}}
+        style={{ position:"absolute",right:6,background:"none",border:"none",cursor:"pointer",
+          color:"var(--text3)",fontSize:13,padding:"2px 4px",borderRadius:4,
+          opacity:0,transition:"opacity 0.15s" }}
+        onMouseEnter={e=>(e.currentTarget.style.color="#ff6b6b")}
+        onMouseLeave={e=>(e.currentTarget.style.color="var(--text3)")}
+      >✕</button>
+    </div>
+  );
+}
+
+// ── Page ──────────────────────────────────────────────────────
+export default function Page() {
+  const [state, setState] = useState<AppState>(() => seed());
+  const [hydrated, setHydrated] = useState(false);
+  const [dateVal, setDateVal]   = useState(todayStr());
+  const [inputText, setInputText] = useState("");
+  const [showCreate, setShowCreate]     = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<Folder|null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // hydrate from localStorage (투두와 동일한 패턴)
+  useEffect(() => {
+    setState(loadState());
+    setHydrated(true);
+  }, []);
+
+  const update = useCallback((updater: (s: AppState) => AppState) => {
+    setState(prev => {
+      const next = updater(prev);
+      debouncedSave(next);
+      return next;
+    });
+  }, []);
+
+  // ── Memo actions ───────────────────────────────────────────
+  const addMemo = () => {
+    const text = inputText.trim();
+    if (!text || !dateVal) return;
+    const folderId = state.activeFolder === "all" ? null : state.activeFolder;
+    const memo: Memo = { id: uid(), folderId, date: dateVal, text, createdAt: Date.now() };
+    update(s => ({ ...s, memos: [...s.memos, memo] }));
+    setInputText("");
+    setTimeout(() => {
+      document.querySelector(`[data-month="${monthKey(dateVal)}"]`)
+        ?.scrollIntoView({ behavior:"smooth", block:"nearest" });
+    }, 80);
+  };
+
+  const deleteMemo = (id: string) => {
+    update(s => ({ ...s, memos: s.memos.filter(m => m.id !== id) }));
+  };
+
+  const updateMemo = (id: string, text: string) => {
+    update(s => ({ ...s, memos: s.memos.map(m => m.id === id ? {...m, text} : m) }));
+  };
+
+  // ── Folder actions ─────────────────────────────────────────
+  const createFolder = (name: string) => {
+    const folder: Folder = { id: uid(), name, createdAt: Date.now() };
+    update(s => ({ ...s, folders: [...s.folders, folder] }));
+    setShowCreate(false);
+  };
+
+  const deleteFolder = (id: string) => {
+    update(s => ({
+      ...s,
+      folders: s.folders.filter(f => f.id !== id),
+      memos: s.memos.map(m => m.folderId === id ? {...m, folderId: null} : m),
+      activeFolder: s.activeFolder === id ? "all" : s.activeFolder,
+    }));
+    setDeleteTarget(null);
+  };
+
+  const renameFolder = (id: string, name: string) => {
+    update(s => ({ ...s, folders: s.folders.map(f => f.id === id ? {...f, name} : f) }));
+  };
+
+  const setActiveFolder = (id: string) => {
+    update(s => ({ ...s, activeFolder: id }));
+  };
+
+  // ── Group memos ────────────────────────────────────────────
+  const visibleMemos = state.activeFolder === "all"
+    ? state.memos
+    : state.memos.filter(m => m.folderId === state.activeFolder);
+
+  const grouped: Record<string, Record<string,Memo[]>> = {};
+  visibleMemos.forEach(m => {
+    const mk = monthKey(m.date);
+    if (!grouped[mk]) grouped[mk] = {};
+    if (!grouped[mk][m.date]) grouped[mk][m.date] = [];
+    grouped[mk][m.date].push(m);
+  });
+  const months = Object.keys(grouped).sort().reverse();
+
+  const handleClickEmpty = (d: string) => { setDateVal(d); inputRef.current?.focus(); };
+
+  const today = new Date();
+  const todayLabel = `${today.getFullYear()}.${String(today.getMonth()+1).padStart(2,"0")}.${String(today.getDate()).padStart(2,"0")}`;
+
+  if (!hydrated) return null;
+
+  return (
+    <div style={{ display:"flex",flexDirection:"column",height:"100vh",overflow:"hidden" }}>
+
+      {/* TOPBAR */}
+      <div style={{ height:"var(--topbar-h)",minHeight:"var(--topbar-h)",
+        display:"flex",alignItems:"center",padding:"0 20px",gap:12,
+        borderBottom:"1px solid var(--border)",background:"var(--bg)",zIndex:100 }}>
+        <span style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:13,fontWeight:500,
+          color:"var(--accent)",letterSpacing:"0.04em" }}>One PSV</span>
+        <span style={{ fontSize:11,color:"var(--text3)",fontFamily:"'JetBrains Mono',monospace" }}>한줄 메모장</span>
+        <div style={{ flex:1 }}/>
+        <span style={{ fontFamily:"'JetBrains Mono',monospace",fontSize:11,color:"var(--text3)" }}>{todayLabel}</span>
+      </div>
+
+      {/* BODY */}
+      <div style={{ display:"flex",flex:1,overflow:"hidden" }}>
+
+        {/* SIDEBAR */}
+        <div style={{ width:"var(--sidebar-w)",minWidth:"var(--sidebar-w)",
+          borderRight:"1px solid var(--border)",display:"flex",flexDirection:"column",
+          padding:"10px 8px",gap:2,overflowY:"auto" }}>
+
+          <button onClick={()=>setActiveFolder("all")}
+            style={{ display:"flex",alignItems:"center",gap:8,padding:"8px 10px",
+              borderRadius:8,border:"none",
+              background:state.activeFolder==="all"?"rgba(255,255,255,0.09)":"none",
+              color:state.activeFolder==="all"?"var(--text)":"var(--text2)",
+              cursor:"pointer",fontSize:13,fontWeight:state.activeFolder==="all"?500:400,
+              fontFamily:"'Noto Sans KR',sans-serif",textAlign:"left",width:"100%",transition:"background 0.15s" }}
+            onMouseEnter={e=>{ if(state.activeFolder!=="all")e.currentTarget.style.background="rgba(255,255,255,0.05)"; }}
+            onMouseLeave={e=>{ if(state.activeFolder!=="all")e.currentTarget.style.background="none"; }}
+          >
+            <span style={{ fontSize:14 }}>📋</span> All
+          </button>
+
+          {state.folders.map(f => (
+            <FolderItem key={f.id} folder={f} isActive={state.activeFolder===f.id}
+              memoCount={state.memos.filter(m=>m.folderId===f.id).length}
+              onSelect={()=>setActiveFolder(f.id)}
+              onDelete={()=>setDeleteTarget(f)}
+              onRename={name=>renameFolder(f.id, name)}
+            />
+          ))}
+
+          <button onClick={()=>setShowCreate(true)}
+            style={{ display:"flex",alignItems:"center",gap:6,padding:"7px 10px",marginTop:6,
+              borderRadius:8,border:"1px dashed rgba(255,255,255,0.13)",
+              background:"none",color:"var(--text3)",cursor:"pointer",fontSize:12,
+              fontFamily:"'Noto Sans KR',sans-serif",width:"100%",transition:"all 0.15s" }}
+            onMouseEnter={e=>{ e.currentTarget.style.color="var(--text2)"; e.currentTarget.style.borderColor="rgba(255,255,255,0.25)"; }}
+            onMouseLeave={e=>{ e.currentTarget.style.color="var(--text3)"; e.currentTarget.style.borderColor="rgba(255,255,255,0.13)"; }}
+          >
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
+              <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/>
+            </svg>
+            폴더 만들기
+          </button>
+        </div>
+
+        {/* MAIN */}
+        <div style={{ flex:1,display:"flex",flexDirection:"column",overflow:"hidden" }}>
+
+          {/* INPUT BAR */}
+          <div style={{ height:"var(--input-h)",minHeight:"var(--input-h)",
+            display:"flex",alignItems:"center",padding:"0 16px",gap:10,
+            borderBottom:"1px solid var(--border)",background:"var(--surface)" }}>
+            <input type="date" value={dateVal} onChange={e=>setDateVal(e.target.value)}
+              style={{ background:"var(--surface2)",border:"1px solid var(--border2)",
+                borderRadius:8,color:"var(--text)",
+                fontFamily:"'JetBrains Mono',monospace",fontSize:12,
+                padding:"6px 10px",outline:"none",cursor:"pointer",
+                flexShrink:0,colorScheme:"dark" }}
+            />
+            <input ref={inputRef} type="text" value={inputText}
+              onChange={e=>setInputText(e.target.value)}
+              onKeyDown={e=>{ if(e.key==="Enter") addMemo(); }}
+              placeholder="메모를 입력하고 Enter…" maxLength={200}
+              style={{ flex:1,background:"transparent",border:"none",outline:"none",
+                color:"var(--text)",fontFamily:"'Noto Sans KR',sans-serif",fontSize:14,padding:"0 4px" }}
+            />
+            <button onClick={addMemo}
+              style={{ background:"var(--accent)",border:"none",borderRadius:7,
+                color:"#111",fontSize:12,fontWeight:600,padding:"6px 14px",
+                cursor:"pointer",flexShrink:0,fontFamily:"'Noto Sans KR',sans-serif",transition:"opacity 0.15s" }}
+              onMouseEnter={e=>(e.currentTarget.style.opacity="0.82")}
+              onMouseLeave={e=>(e.currentTarget.style.opacity="1")}
+            >추가</button>
+          </div>
+
+          {/* PANELS */}
+          <div style={{ flex:1,overflowY:"auto",padding:"20px 20px 40px",
+            display:"flex",flexDirection:"column",gap:28 }}>
+            {months.length === 0 && (
+              <div style={{ display:"flex",flexDirection:"column",alignItems:"center",
+                justifyContent:"center",gap:10,paddingTop:80,
+                color:"var(--text3)",fontSize:13 }}>
+                <div style={{ fontSize:28 }}>✦</div>
+                <div>메모를 입력해 시작하세요</div>
+              </div>
+            )}
+            {months.map(mk => (
+              <MonthPanel key={mk} mk={mk} byDay={grouped[mk]}
+                onDelete={deleteMemo} onUpdate={updateMemo} onClickEmpty={handleClickEmpty} />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {showCreate && <FolderModal onConfirm={createFolder} onCancel={()=>setShowCreate(false)} />}
+      {deleteTarget && (
+        <DeleteFolderModal name={deleteTarget.name}
+          onConfirm={()=>deleteFolder(deleteTarget.id)}
+          onCancel={()=>setDeleteTarget(null)} />
+      )}
+    </div>
+  );
+}

@@ -1,0 +1,474 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+/* =================================================================
+   ????쥓??野꺜??揶쎛??諭?(Cmd+F 嚥?筌≪뼐由?
+   -----------------------------------------------------------------
+   ??????뚎됱쑎 (?????夷?醫롮?夷뚩린袁る뱣 ??  ??野꺜?? POINT COLOR
+   ??쎄쾿筌뤴뫀諭???깃맒 癰궰??                 ??野꺜?? DARK MODE
+   ??깆뵠?紐껁걟????깃맒 癰궰??               ??野꺜?? LIGHT MODE
+   ?怨룸뼊 ??삵돩獄?                       ??野꺜?? TOPBAR
+   ????? "One PSV" ??용뮞??           ??野꺜?? psv-titleText
+   ??뺥닏????? "??뽰Ø 筌롫뗀???            ??野꺜?? psv-subText
+   ???춳 ?醫? 甕곌쑵??(??????              ??野꺜?? psv-circle
+   ================================================================= */
+
+/* ???? POINT COLOR ????쎄쾿/??깆뵠???⑤벏???⑥쥙?????? */
+:root {
+  --point:    #a3e635;          /* ????????뚎됱쑎 ???????夷?醫롮?夷뚨빊遺?甕곌쑵?됱쮯today??ъ쁽 */
+  --point-fg: rgba(20,50,5,0.88); /* ??????뚎됱쑎 ????용뮞????(甕곌쑵??疫꼲?? ??獄쏆빘? 獄쏄퀗瑗???嚥???紐쇔칰?*/
+}
+
+/* ???? DARK MODE ???? */
+:root {
+  /* 獄쏄퀗瑗???됱뵠??----------------------------------------------- */
+  --bg:          #17212b;   /* ?袁⑷퍥 筌ㅼ뮉釉??獄쏄퀗瑗????遺얠쟿域밸챶???癒?덱 ??쇱뵠??*/
+  --surface:     #0f1923;   /* ?????뺤뺍夷뚳쭗?ㅻ뼎 獄쏄퀗瑗???????紐????쇱뵠??*/
+  --surface2:    #1d3048;   /* 甕곌쑵??hover夷?醫뤾문 獄쏄퀗瑗????됰뗀竊???꾨뱜 */
+  --pill-bg:     #1a2535;   /* ?얜챷??獄쏅벡??pill) 疫꿸퀡??獄쏄퀗瑗?*/
+  --input-bg:    #2a4610;   /* ?紐낅?獄?筌롫뗀????낆젾 ?怨몃열) 獄쏄퀗瑗???鸚룸엨釉???깆뿫 ???????紐??甕곌쑴??*/
+  --input-text:  var(--point); /* ?紐낅?獄???용뮞????????????뚎됱쑎(??깆뿫)嚥???쎄쾿 獄쏄퀗瑗?癒?퐣 ?醫딆구??띿쓺 */
+  --date-bg:     #344f14;   /* ?醫롮? ?醫뤾문 input 獄쏄퀗瑗???input-bg癰귣?????곸? ??紐????덉뵬 ?④쑴肉?*/
+  --date-border: #263f10;   /* ?醫롮? input ???あ??*/
+  --today-outer: #131d27;   /* ??삳뮎 ?醫롮? ??獄쏅떽臾?獄쏄퀗瑗?揶쏅벡????獄쏄퀗瑗띹퉪?????紐쇗??????뺤뺍癰귣???獄쏆빓苡?*/
+
+  /* ??border) ------------------------------------------------ */
+  --border:  rgba(255,255,255,0.07);  /* ?????뺤뺍夷?????닌됲뀋??*/
+  --border2: rgba(255,255,255,0.11);  /* pill ???あ??*/
+
+  /* ??용뮞??---------------------------------------------------- */
+  --text:      rgba(255,255,255,0.85);  /* 癰귣챶揆 ??용뮞??*/
+  --pill-text-dark: rgba(255,255,255,0.78); /* pill ????용뮞??*/
+  --text2: rgba(255,255,255,0.50);  /* 癰귣똻????용뮞??(???묕쭗???쑵????? */
+  --text3: rgba(255,255,255,0.28);  /* ?癒?뵛 ??용뮞??(?醫롮???ъ쁽夷뚨㎉?곸뒲?? */
+
+  /* ??삵돩獄?---------------------------------------------------- */
+  --topbar-bg:     rgba(15,25,35,0.98);    /* ??삵돩獄?獄쏄퀗瑗?*/
+  --topbar-border: rgba(255,255,255,0.07);  /* ??삵돩獄???롫뼊 ?닌됲뀋??*/
+  --subtext-color: rgba(255,255,255,0.40); /* "??뽰Ø 筌롫뗀??? ??뺥닏????? */
+
+  /* 疫꿸퀬? ----------------------------------------------------- */
+  --divider:      rgba(255,255,255,0.04);   /* ?醫롮? ?????닌됲뀋????獄쏄퀗瑗띹퉪????袁⑼폒 ??곸? 獄쏆빓苡?*/
+  --pill-overlay: rgba(0,0,0,0.40);        /* ??깃맒 pill ??紐쇔칰??袁ⓥ뀮????됱뵠??*/
+  --pill-text:    rgba(255,255,255,0.76);  /* ??깃맒 pill ??용뮞??????곸? ???퉳 */
+
+  --sidebar-w: 260px;
+  --input-h:   47px;
+}
+
+/* ???? LIGHT MODE ???? */
+[data-theme="light"] {
+  /* ??????뚎됱쑎 ????깆뵠??筌뤴뫀諭????곸읈 ???곲뇡??醫? */
+  --point:    #7cb518;
+  --point-fg: #fff;
+
+  /* 獄쏄퀗瑗???됱뵠??----------------------------------------------- */
+  --bg:          #ffffff;   /* ?袁⑷퍥 筌ㅼ뮉釉??獄쏄퀗瑗?*/
+  --surface:     #ffffff;   /* ?????뺤뺍 獄쏄퀗瑗???곸벉 ??bg?? ??덉뵬 */
+  --surface2:    #f3f3f3;   /* 甕곌쑵??hover夷?醫뤾문 獄쏄퀗瑗?*/
+  --pill-bg:     #f9f9f9;   /* ?얜챷??獄쏅벡??pill) ???袁⑼폒 獄쏆빘? ???퉳 */
+  --input-bg:    var(--point); /* ?紐낅?獄?筌롫뗀????낆젾 ?怨몃열) 獄쏄퀗瑗?????????뚎됱쑎 */
+  --input-text:  #ffffff;      /* ?紐낅?獄???용뮞???????怨쀪퉳 */
+  --date-bg:     rgba(0,0,0,0.14); /* ?醫롮? ?醫뤾문 input 獄쏄퀗瑗???point ????紐????됱뵠??*/
+  --date-border: rgba(0,0,0,0.12); /* ?醫롮? input ???あ??????깆뵠?紐껁걟????????띿쓺 */
+  --today-outer: #f5f5f5;   /* ??삳뮎 ?醫롮? ??獄쏅떽臾?獄쏄퀗瑗?揶쏅벡??*/
+
+  /* ??border) ------------------------------------------------ */
+  --border:  rgba(0,0,0,0.04);  /* ?????뺤뺍 ?닌됲뀋?議뽯８沅뉛쭪??닌됲뀋??*/
+  --border2: rgba(0,0,0,0.07);  /* pill ???あ??猷몄쒔?????あ??*/
+
+  /* ??용뮞??---------------------------------------------------- */
+  --text:  rgba(0,0,0,0.82);  /* 癰귣챶揆 ??용뮞??*/
+  --text2: rgba(0,0,0,0.36);  /* 癰귣똻????용뮞??*/
+  --text3: rgba(0,0,0,0.20);  /* ?癒?뵛 ??용뮞??*/
+
+  /* ??삵돩獄?---------------------------------------------------- */
+  --topbar-bg:     rgba(255,255,255,0.92); /* ??삵돩獄?獄쏄퀗瑗?*/
+  --topbar-border: rgba(0,0,0,0.04);       /* ??삵돩獄???롫뼊 ?닌됲뀋??*/
+  --subtext-color: rgba(0,0,0,0.36);       /* "??뽰Ø 筌롫뗀??? ??뺥닏????? */
+
+  /* 疫꿸퀬? ----------------------------------------------------- */
+  --divider:      rgba(0,0,0,0.04);         /* ?醫롮? ?????닌됲뀋??*/
+  --pill-overlay: rgba(255,255,255,0.48);   /* ??깃맒 pill 獄쏆빓苡????????됱뵠??*/
+  --pill-text:    rgba(0,0,0,0.80);         /* ??깃맒 pill ??용뮞??*/
+}
+
+/* ================================================================= */
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  overflow-x: hidden;
+  overscroll-behavior: none; /* 상하 스와이프 튕김(bounce) 방지 */
+  background: var(--bg);
+  color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
+    "Apple SD Gothic Neo", "Noto Sans KR", Arial, sans-serif;
+  transition: background 0.2s, color 0.2s;
+}
+
+/* ???? ?????뺤뺍 嚥≪뮄???怨몃열 ???? */
+.psv-sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 49px;
+  padding: 0 6px 0 10px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+/* ?됰슢????怨몃열 (?????+??뺥닏????? ?얜씈?? */
+.psv-brand {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1px;
+  height: 100%;
+  padding: 0 0 10px;
+  box-sizing: border-box;
+}
+
+/* ????? "One PSV" ??psv-titleText */
+.psv-titleText {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--point);   /* ????????뚎됱쑎 */
+  line-height: 1.2;
+}
+.psv-titleInput {
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  width: auto;
+  min-width: 60px;
+  max-width: 320px;
+  line-height: 1.2;
+}
+.psv-titleInput:focus {
+  opacity: 0.8;
+}
+
+/* ??뺥닏????? "??뽰Ø 筌롫뗀??? ??psv-subText */
+.psv-subText {
+  font-size: 12px;
+  color: var(--subtext-color);
+  line-height: 1.15;
+}
+
+/* ???춳 ?醫? 甕곌쑵??????????psv-circle */
+.psv-circle {
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  border: 1px solid var(--border2);
+  background: var(--surface2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  cursor: pointer;
+  color: var(--text2);
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.psv-circle:hover {
+  background: transparent;
+  border-color: var(--text2);
+  color: var(--text);
+}
+
+/* ???? ?냈獄?筌롫뗀??甕곌쑵??(?紐껋쨮 ??3揶? ???? */
+.psv-kebab-btn {
+  width: 32px;
+  height: 38px;
+  border-radius: 8px;
+  border: none;
+  background: none;
+  color: var(--text3);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s;
+}
+.psv-kebab-btn:hover {
+  background: var(--surface2);
+  color: var(--text2);
+}
+
+/* ???? ??쇱젟 ??뺚댘??쇱뒲 ???? */
+.psv-settings-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 160px;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.28);
+  padding: 6px;
+  z-index: 500;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.psv-settings-label {
+  padding: 6px 10px 4px;
+}
+.psv-settings-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  border: none;
+  background: none;
+  color: var(--text2);
+  font-size: 13px;
+  font-family: 'Noto Sans KR', ui-sans-serif, sans-serif;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  transition: background 0.12s, color 0.12s;
+}
+.psv-settings-item:hover {
+  background: var(--surface2);
+  color: var(--text);
+}
+
+/* PillRow ??揶?餓?揶쎛嚥???쎄쾿嚥▲끇而??袁⑹읈 ??? */
+.pill-row::-webkit-scrollbar { display: none; }
+
+/* ???? ??쎄쾿嚥▲끇而?(todo 疫꿸퀣? ???袁⑸열 ?怨몄뒠) ???? */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.22) #17212b;
+}
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: #17212b; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.22); border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.36); }
+
+/* ???? ?????뺤뺍 ???怨쀫뮞??源??⑥쥙??/ 筌뤴뫀而???????逾????? */
+.psv-sidebar {
+  width: var(--sidebar-w);
+  min-width: var(--sidebar-w);
+  position: relative;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 12px 8px 0;
+  gap: 0;
+  overflow: hidden;
+  flex-shrink: 0;
+  transition: transform 0.28s cubic-bezier(0.4,0,0.2,1), width 0.24s cubic-bezier(0.4,0,0.2,1), min-width 0.24s cubic-bezier(0.4,0,0.2,1);
+  z-index: 200;
+  background: var(--surface);
+}
+
+/* 嚥≪뮄???袁⑥삋 ??쎄쾿嚥??怨몃열 */
+.psv-sidebar-scroll {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 14px 0 8px;
+  scrollbar-width: none;
+}
+.psv-sidebar-scroll::-webkit-scrollbar { display: none; }
+
+/* ?????뺤뺍 ?귐딄텢??곸グ ?紐껊굶 */
+.psv-sidebar > div[style*="col-resize"]:hover {
+  background: rgba(255,255,255,0.10);
+}
+
+/* All ???뚢뫂???瑗?????ル뼒??獄쏄퀗瑗??"+" 甕곌쑵?됪틦?? ??釉?*/
+.psv-sidebar-all-row {
+  display: flex;
+  align-items: center;
+  border-radius: 10px;
+  transition: background 0.12s, color 0.12s;
+}
+.psv-sidebar-all-row:hover { background: var(--border); }
+.psv-sidebar-all-row:hover .psv-sidebar-item--all { color: var(--text); }
+.psv-sidebar-all-row.is-active { background: var(--surface2); }
+.psv-sidebar-all-row.is-active .psv-sidebar-item--all { color: var(--text); font-weight: 700; }
+
+/* All ????? 甕곌쑵?????癒?퍥 獄쏄퀗瑗??紐껋쒔 ??곸벉 */
+.psv-sidebar-item--all { border-radius: 0 !important; background: transparent !important; }
+.psv-sidebar-item--all:hover { background: transparent !important; }
+
+/* ?????뺤뺍 ?袁⑹뵠??甕곌쑵??(+ 獄??臾롫┛) */
+.psv-sidebar-iconbtn {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.05);
+  color: rgba(255,255,255,0.45);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.14s, border-color 0.14s, color 0.14s;
+  margin-right: 4px;
+}
+.psv-sidebar-iconbtn:hover {
+  background: rgba(255,255,255,0.11);
+  color: rgba(255,255,255,0.85);
+  border-color: rgba(255,255,255,0.28);
+}
+.psv-sidebar-collapse-btn {
+  margin-left: auto;
+  margin-right: 0;
+}
+
+/* ?????뺤뺍 ?袁⑹뵠???⑤벏??*/
+.psv-sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  padding-right: 28px;
+  border-radius: 10px;
+  border: none;
+  background: none;
+  color: var(--text2);
+  font-size: 13px;
+  font-weight: 400;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: background 0.12s, color 0.12s;
+  position: relative;
+  font-family: 'Noto Sans KR', ui-sans-serif, sans-serif;
+  letter-spacing: 0.01em;
+}
+.psv-sidebar-item:hover { background: var(--border); color: var(--text); }
+.psv-sidebar-item.is-active {
+  background: var(--surface2);
+  color: var(--text);
+  font-weight: 700;
+}
+
+/* ?????곕떽? 甕곌쑵??*/
+.psv-sidebar-addbtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 10px;
+  margin-top: 6px;
+  border-radius: 10px;
+  border: 1px dashed var(--border2);
+  background: none;
+  color: var(--text3);
+  cursor: pointer;
+  font-size: 12px;
+  width: 100%;
+  transition: all 0.15s;
+  font-family: 'Noto Sans KR', ui-sans-serif, sans-serif;
+}
+.psv-sidebar-addbtn:hover {
+  color: var(--text2);
+  border-color: var(--text2);
+}
+
+/* ?袁⑥쒔椰?甕곌쑵?????怨쀫뮞??源?癒?퐣????? */
+.psv-hamburger {
+  display: none;
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  border: 1px solid var(--border2);
+  background: none;
+  color: var(--text2);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s;
+}
+.psv-hamburger:hover {
+  background: var(--surface2);
+  color: var(--text);
+}
+
+/* ????살쒔??됱뵠 */
+.psv-sidebar-dim {
+  display: none;
+}
+
+/* ???? 筌뤴뫀而??(768px ??꾨릭) ???? */
+@media (max-width: 768px) {
+  .psv-hamburger {
+    display: inline-flex;
+  }
+
+  .psv-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    transform: translateX(-100%);
+    box-shadow: none;
+    z-index: 500;
+    padding-top: 20px;
+  }
+
+  .psv-sidebar--open {
+    transform: translateX(0);
+    box-shadow: 4px 0 32px rgba(0,0,0,0.35);
+  }
+
+  .psv-sidebar-dim {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 499;
+    backdrop-filter: blur(2px);
+  }
+}
+
+/* ??쎄쾿 筌뤴뫀諭??紐낅?獄?placeholder ????????뚎됱쑎 ?④쑴肉??癒?봺野?*/
+.psv-input-bar input::placeholder {
+  color: rgba(163,230,53,0.38);
+}
+
+/* ??깆뵠??筌뤴뫀諭??????뺤뺍 ?袁⑹뵠??????? ????쎄쾿癰귣???筌욊쑵釉?칰?*/
+[data-theme="light"] .psv-sidebar-item {
+  color: rgba(0,0,0,0.62);
+}
+[data-theme="light"] .psv-sidebar-item:hover,
+[data-theme="light"] .psv-sidebar-item.is-active {
+  color: var(--text);
+}
+[data-theme="light"] .psv-sidebar-iconbtn {
+  border-color: rgba(0,0,0,0.16);
+  background: rgba(0,0,0,0.04);
+  color: rgba(0,0,0,0.38);
+}
+[data-theme="light"] .psv-sidebar-iconbtn:hover {
+  background: rgba(0,0,0,0.09);
+  color: rgba(0,0,0,0.72);
+  border-color: rgba(0,0,0,0.28);
+}
+[data-theme="light"] .psv-sidebar-all-row:hover .psv-sidebar-item--all {
+  color: var(--text);
+}
+[data-theme="light"] .psv-sidebar-all-row.is-active .psv-sidebar-item--all {
+  color: var(--text);
+}
+
+/* ??깆뵠??筌뤴뫀諭??紐낅?獄?placeholder */
+[data-theme="light"] .psv-input-bar input::placeholder {
+  color: rgba(255,255,255,0.55);
+}
