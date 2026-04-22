@@ -75,8 +75,8 @@ export type MemoRow = {
 };
 
 
-function seedIfEmpty(db) {
-  const row = db.prepare('SELECT COUNT(*) as count FROM memos').get();
+function seedIfEmpty(db: Database.Database) {
+  const row = db.prepare('SELECT COUNT(*) as count FROM memos').get() as { count: number };
   if (row.count > 0) return;
 
   const folderId = 'seed-folder-quotes';
