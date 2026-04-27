@@ -94,6 +94,91 @@
       "id": "seed_memo_0017", "folder_id": "seed_folder_si_0001",
       "date": "2026-04-24", "text": "어느 먼 곳의 그리운 소식이기에 이 한밤 소리 없이 흩날리느뇨 -김광균, 설야",
       "created_at": 1776988804000, "color": null, "image": null, "note": null
+    },
+    {
+      "id": "seed_memo_0018", "folder_id": "seed_folder_si_0001",
+      "date": "2026-04-23", "text": "오늘",
+      "created_at": 1776902401000, "color": null, "image": null, "note": null
+    },
+    {
+      "id": "seed_memo_0019", "folder_id": "seed_folder_gl_0002",
+      "date": "2026-04-23", "text": "살아있다는 것은 아직 가능성이 있다는 것이다.",
+      "created_at": 1776902402000, "color": null, "image": null, "note": null
+    },
+    {
+      "id": "seed_memo_0020", "folder_id": "seed_folder_si_0001",
+      "date": "2026-04-23", "text": "가장 어두운 시간은 새벽이 오기 직전이다.",
+      "created_at": 1776902403000, "color": null, "image": null, "note": null
+    },
+    {
+      "id": "seed_memo_0021", "folder_id": "seed_folder_gl_0002",
+      "date": "2026-04-23", "text": "끝이 좋으면 다 좋다. -셰익스피어",
+      "created_at": 1776902404000, "color": "#69F0AE", "image": null, "note": null
+    },
+    {
+      "id": "seed_memo_0022", "folder_id": "seed_folder_si_0001",
+      "date": "2026-04-23", "text": "청포도가 익어가는 시절에 이 마을 전설이 주저리주저리 열리고 -이육사",
+      "created_at": 1776902405000, "color": null, "image": null, "note": null
+    },
+    {
+      "id": "seed_memo_0023", "folder_id": "seed_folder_gl_0002",
+      "date": "2026-04-22", "text": "지금 이 순간",
+      "created_at": 1776816001000, "color": null, "image": null, "note": null
+    },
+    {
+      "id": "seed_memo_0024", "folder_id": "seed_folder_si_0001",
+      "date": "2026-04-22", "text": "내 마음은 호수요, 그대 노 저어 오오. -김동명",
+      "created_at": 1776816002000, "color": null, "image": null, "note": null
+    },
+    {
+      "id": "seed_memo_0025", "folder_id": "seed_folder_gl_0002",
+      "date": "2026-04-22", "text": "오늘을 살아라. 잘 살아낸 오늘은 모든 어제를 행복한 꿈으로 만들고, 모든 내일을 희망으로 만든다. -산스크리트 격언",
+      "created_at": 1776816003000, "color": "#FF80AB", "image": null, "note": null
+    },
+    {
+      "id": "seed_memo_0026", "folder_id": "seed_folder_si_0001",
+      "date": "2026-04-22", "text": "모란이 피기까지는 나는 아직 나의 봄을 기다리고 있을 테요. -김영랑",
+      "created_at": 1776816004000, "color": null, "image": null, "note": null
+    },
+    {
+      "id": "seed_memo_0027", "folder_id": "seed_folder_gl_0002",
+      "date": "2026-04-21", "text": "침묵",
+      "created_at": 1776729601000, "color": null, "image": null, "note": null
+    },
+    {
+      "id": "seed_memo_0028", "folder_id": "seed_folder_si_0001",
+      "date": "2026-04-21", "text": "유리에 차고 슬픈 것이 어른거린다. -정지용",
+      "created_at": 1776729602000, "color": null, "image": null, "note": null
+    },
+    {
+      "id": "seed_memo_0029", "folder_id": "seed_folder_gl_0002",
+      "date": "2026-04-21", "text": "인생은 가까이서 보면 비극이지만, 멀리서 보면 희극이다. -찰리 채플린",
+      "created_at": 1776729603000, "color": null, "image": null, "note": null
+    },
+    {
+      "id": "seed_memo_0030", "folder_id": "seed_folder_si_0001",
+      "date": "2026-04-21", "text": "나는 아직도 배가 고프다. 빛이 고프고, 언어가 고프고, 사람이 고프다.",
+      "created_at": 1776729604000, "color": "#B388FF", "image": null, "note": null
+    },
+    {
+      "id": "seed_memo_0031", "folder_id": "seed_folder_si_0001",
+      "date": "2026-04-20", "text": "저녁에",
+      "created_at": 1776643201000, "color": null, "image": null, "note": null
+    },
+    {
+      "id": "seed_memo_0032", "folder_id": "seed_folder_gl_0002",
+      "date": "2026-04-20", "text": "아무도 걷지 않은 길에는 꽃이 핀다.",
+      "created_at": 1776643202000, "color": null, "image": null, "note": null
+    },
+    {
+      "id": "seed_memo_0033", "folder_id": "seed_folder_si_0001",
+      "date": "2026-04-20", "text": "산은 높고 강은 멀어도 네가 가는 곳이 나의 길이다.",
+      "created_at": 1776643203000, "color": null, "image": null, "note": null
+    },
+    {
+      "id": "seed_memo_0034", "folder_id": "seed_folder_gl_0002",
+      "date": "2026-04-20", "text": "모든 예술은 무엇인가를 원하는 마음에서 시작된다. -릴케",
+      "created_at": 1776643204000, "color": "#FFEA00", "image": null, "note": null
     }
   ]
 }
