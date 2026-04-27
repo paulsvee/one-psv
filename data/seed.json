@@ -1,9 +1,15 @@
 {
   "folders": [
+    { "id": "seed_folder_an_0000", "name": "안내", "created_at": 1777248000000, "image": null },
     { "id": "seed_folder_si_0001", "name": "시", "created_at": 1777248000000, "image": null },
     { "id": "seed_folder_gl_0002", "name": "글", "created_at": 1777248000000, "image": null }
   ],
   "memos": [
+    {
+      "id": "seed_memo_0000", "folder_id": "seed_folder_an_0000",
+      "date": "2026-04-27", "text": "터치스크린 UX로 제작되어, 터치 기기에서 가장 잘 작동합니다.",
+      "created_at": 1777248000500, "color": null, "image": null, "note": null
+    },
     {
       "id": "seed_memo_0001", "folder_id": "seed_folder_si_0001",
       "date": "2026-04-27", "text": "봄",
