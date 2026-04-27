@@ -2,10 +2,47 @@ import Database from "better-sqlite3";
 import path from "path";
 import fs from "fs";
 
-const DB_DIR = path.join(process.cwd(), "data");
+const IS_VERCEL = !!process.env.VERCEL;
+const DB_DIR = IS_VERCEL ? "/tmp/one-psv-data" : path.join(process.cwd(), "data");
 const DB_PATH = path.join(DB_DIR, "one-psv.db");
+const SEED_PATH = path.join(process.cwd(), "data", "seed.json");
 
 let _db: Database.Database | null = null;
+
+type SeedFolder = { id: string; name: string; created_at: number; image: string | null };
+type SeedMemo = { id: string; folder_id: string | null; date: string; text: string; created_at: number; color: string | null; image: string | null; note: string | null };
+type SeedData = { folders: SeedFolder[]; memos: SeedMemo[] };
+
+function loadSeed(): SeedData | null {
+  try {
+    if (fs.existsSync(SEED_PATH)) {
+      return JSON.parse(fs.readFileSync(SEED_PATH, "utf-8")) as SeedData;
+    }
+  } catch {}
+  return null;
+}
+
+function seedIfEmpty(db: Database.Database) {
+  const folderCount = (db.prepare("SELECT COUNT(*) as c FROM folders").get() as { c: number }).c;
+  const memoCount = (db.prepare("SELECT COUNT(*) as c FROM memos").get() as { c: number }).c;
+  if (folderCount > 0 || memoCount > 0) return;
+
+  const seed = loadSeed();
+  if (!seed) return;
+
+  const insertFolder = db.prepare(
+    "INSERT OR IGNORE INTO folders (id, name, created_at, image) VALUES (?, ?, ?, ?)"
+  );
+  const insertMemo = db.prepare(
+    "INSERT OR IGNORE INTO memos (id, folder_id, date, text, created_at, color, image, note) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+  );
+
+  const seedAll = db.transaction(() => {
+    for (const f of seed.folders) insertFolder.run(f.id, f.name, f.created_at, f.image);
+    for (const m of seed.memos) insertMemo.run(m.id, m.folder_id, m.date, m.text, m.created_at, m.color, m.image, m.note);
+  });
+  seedAll();
+}
 
 function ensureColumn(db: Database.Database, table: string, column: string, definition: string) {
   const columns = db.prepare(`PRAGMA table_info(${table})`).all() as { name: string }[];
@@ -52,6 +89,7 @@ export function getDb(): Database.Database {
   ensureColumn(_db, "memos", "note", "TEXT");
 
   seedIfEmpty(_db);
+
   return _db;
 }
 
@@ -73,83 +111,6 @@ export type MemoRow = {
   image: string | null;
   note: string | null;
 };
-
-
-function seedIfEmpty(db: Database.Database) {
-  const row = db.prepare("SELECT COUNT(*) as count FROM memos").get() as { count: number };
-  if (row.count > 0) return;
-
-  const folderId = "seed-folder-quotes";
-  db.prepare("INSERT OR IGNORE INTO folders (id, name, created_at) VALUES (?, ?, ?)").run(folderId, "Quotes", Date.now());
-
-  const insertMemo = db.prepare(
-    "INSERT INTO memos (id, folder_id, date, text, color, created_at) VALUES (?, ?, ?, ?, ?, ?)"
-  );
-  let ts = 1745280000000;
-  const add = (date: string, text: string, color: string | null = null) => {
-    insertMemo.run("seed-" + ts.toString(36), folderId, date, text, color, ts++);
-  };
-
-  db.transaction(() => {
-    // April 1 — 5 memos (Steve Jobs)
-    add("2026-04-01", "The only way to do great work is to love what you do. — Steve Jobs", "#FFFF00");
-    add("2026-04-01", "Stay hungry. Stay foolish. — Steve Jobs", null);
-    add("2026-04-01", "Design is not just what it looks like. Design is how it works. — Steve Jobs", "#FFFF00");
-    add("2026-04-01", "Your time is limited, don't waste it living someone else's life. — Steve Jobs", null);
-    add("2026-04-01", "Innovation distinguishes between a leader and a follower. — Steve Jobs", null);
-
-    // April 2 — 1 memo
-    add("2026-04-02", "In the middle of difficulty lies opportunity. — Albert Einstein", null);
-
-    // April 3 — 3 memos (Einstein)
-    add("2026-04-03", "Imagination is more important than knowledge. — Albert Einstein", "#90EE90");
-    add("2026-04-03", "Life is like riding a bicycle. To keep your balance, you must keep moving. — Einstein", null);
-    add("2026-04-03", "A person who never made a mistake never tried anything new. — Einstein", null);
-
-    // April 4 — 1 memo
-    add("2026-04-04", "Simplicity is the ultimate sophistication. — Leonardo da Vinci", null);
-
-    // April 5 — 5 memos (Da Vinci)
-    add("2026-04-05", "Art is never finished, only abandoned. — Leonardo da Vinci", "#FFB6C1");
-    add("2026-04-05", "The noblest pleasure is the joy of understanding. — Leonardo da Vinci", null);
-    add("2026-04-05", "Learning never exhausts the mind. — Leonardo da Vinci", "#90EE90");
-    add("2026-04-05", "Details make perfection, and perfection is not a detail. — Leonardo da Vinci", null);
-    add("2026-04-05", "He who is fixed to a star does not change his mind. — Leonardo da Vinci", null);
-
-    // April 6 — 2 memos
-    add("2026-04-06", "Two things are infinite: the universe and human stupidity. — Albert Einstein", null);
-    add("2026-04-06", "Logic will get you from A to Z; imagination will get you everywhere. — Einstein", "#87CEEB");
-
-    // April 7 — 3 memos (Jobs)
-    add("2026-04-07", "The people who are crazy enough to think they can change the world are the ones who do. — Steve Jobs", null);
-    add("2026-04-07", "Creativity is just connecting things. — Steve Jobs", "#FFFF00");
-    add("2026-04-07", "Real artists ship. — Steve Jobs", null);
-
-    // April 8 — 1 memo
-    add("2026-04-08", "The secret of getting ahead is getting started. — Mark Twain", null);
-
-    // April 9 — 4 memos
-    add("2026-04-09", "It does not matter how slowly you go as long as you do not stop. — Confucius", null);
-    add("2026-04-09", "Everything should be made as simple as possible, but not simpler. — Einstein", "#87CEEB");
-    add("2026-04-09", "The world is a book, and those who do not travel read only one page. — Augustine", null);
-    add("2026-04-09", "Be the change you wish to see in the world. — Gandhi", "#90EE90");
-
-    // April 10 — 1 memo
-    add("2026-04-10", "Everything is designed. Few things are designed well. — Brian Reed", null);
-
-    // April 11 — 2 memos
-    add("2026-04-11", "Whether you think you can or you think you cannot, you are right. — Henry Ford", null);
-    add("2026-04-11", "The best time to plant a tree was 20 years ago. The second best time is now. — Chinese Proverb", "#FFFF00");
-
-    // April 12 — 3 memos (programming)
-    add("2026-04-12", "First, solve the problem. Then, write the code. — John Johnson", null);
-    add("2026-04-12", "Talk is cheap. Show me the code. — Linus Torvalds", null);
-    add("2026-04-12", "Any fool can write code that a computer can understand. Good programmers write code that humans can understand. — Martin Fowler", "#FFB6C1");
-
-    // April 13 — 1 memo
-    add("2026-04-13", "The measure of intelligence is the ability to change. — Albert Einstein", null);
-  })();
-}
 
 export function getAppTitle(): string {
   const row = getDb()

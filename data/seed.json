@@ -1,0 +1,93 @@
+{
+  "folders": [
+    { "id": "seed_folder_si_0001", "name": "시", "created_at": 1777248000000, "image": null },
+    { "id": "seed_folder_gl_0002", "name": "글", "created_at": 1777248000000, "image": null }
+  ],
+  "memos": [
+    {
+      "id": "seed_memo_0001", "folder_id": "seed_folder_si_0001",
+      "date": "2026-04-27", "text": "봄",
+      "created_at": 1777248001000, "color": null, "image": null, "note": null
+    },
+    {
+      "id": "seed_memo_0002", "folder_id": "seed_folder_si_0001",
+      "date": "2026-04-27", "text": "죽는 날까지 하늘을 우러러 한 점 부끄럼이 없기를, 잎새에 이는 바람에도 나는 괴로워했다. — 윤동주",
+      "created_at": 1777248002000, "color": null, "image": null, "note": null
+    },
+    {
+      "id": "seed_memo_0003", "folder_id": "seed_folder_gl_0002",
+      "date": "2026-04-27", "text": "사람이 온다는 건 실은 어마어마한 일이다. 그는 그의 과거와 현재와 그의 미래와 함께 오기 때문이다. 한 사람의 일생이 오기 때문이다. — 정현종",
+      "created_at": 1777248003000, "color": "#82B1FF", "image": null, "note": null
+    },
+    {
+      "id": "seed_memo_0004", "folder_id": "seed_folder_si_0001",
+      "date": "2026-04-27", "text": "자세히 보아야 예쁘다 오래 보아야 사랑스럽다 너도 그렇다 — 나태주",
+      "created_at": 1777248004000, "color": null, "image": null, "note": null
+    },
+    {
+      "id": "seed_memo_0005", "folder_id": "seed_folder_gl_0002",
+      "date": "2026-04-27", "text": "새는 알에서 나오려고 투쟁한다. 알은 세계다. 태어나려는 자는 하나의 세계를 깨뜨려야 한다. — 헤르만 헤세",
+      "created_at": 1777248005000, "color": "#FFEA00", "image": null, "note": null
+    },
+    {
+      "id": "seed_memo_0006", "folder_id": "seed_folder_gl_0002",
+      "date": "2026-04-26", "text": "충분하다",
+      "created_at": 1777161601000, "color": null, "image": null, "note": null
+    },
+    {
+      "id": "seed_memo_0007", "folder_id": "seed_folder_si_0001",
+      "date": "2026-04-26", "text": "나 보기가 역겨워 가실 때에는 말없이 고이 보내 드리오리다 — 김소월",
+      "created_at": 1777161602000, "color": "#FF80AB", "image": null, "note": null
+    },
+    {
+      "id": "seed_memo_0008", "folder_id": "seed_folder_si_0001",
+      "date": "2026-04-26", "text": "내가 그의 이름을 불러 주기 전에는 그는 다만 하나의 몸짓에 지나지 않았다. 내가 그의 이름을 불러 주었을 때, 그는 나에게로 와서 꽃이 되었다. — 김춘수",
+      "created_at": 1777161603000, "color": null, "image": null, "note": null
+    },
+    {
+      "id": "seed_memo_0009", "folder_id": "seed_folder_gl_0002",
+      "date": "2026-04-26", "text": "사랑한다는 말은 언제나 조금 늦게 도착한다.",
+      "created_at": 1777161604000, "color": "#FF3D00", "image": null, "note": null
+    },
+    {
+      "id": "seed_memo_0010", "folder_id": "seed_folder_si_0001",
+      "date": "2026-04-25", "text": "다시, 봄",
+      "created_at": 1777075201000, "color": null, "image": null, "note": null
+    },
+    {
+      "id": "seed_memo_0011", "folder_id": "seed_folder_gl_0002",
+      "date": "2026-04-25", "text": "사막이 아름다운 것은 어딘가에 샘물을 숨기고 있기 때문이야. — 생텍쥐페리, 어린왕자",
+      "created_at": 1777075202000, "color": "#00E5FF", "image": null, "note": null
+    },
+    {
+      "id": "seed_memo_0012", "folder_id": "seed_folder_si_0001",
+      "date": "2026-04-25", "text": "길이 끝나는 곳에서도 길이 있다. 길이 끝나는 곳에서도 길이 되는 사람이 있다. — 정호승",
+      "created_at": 1777075203000, "color": null, "image": null, "note": null
+    },
+    {
+      "id": "seed_memo_0013", "folder_id": "seed_folder_gl_0002",
+      "date": "2026-04-25", "text": "살아 있다는 것은, 지금 이 순간에도 누군가의 기억 속에 존재한다는 것이다.",
+      "created_at": 1777075204000, "color": null, "image": null, "note": null
+    },
+    {
+      "id": "seed_memo_0014", "folder_id": "seed_folder_gl_0002",
+      "date": "2026-04-24", "text": "그래도",
+      "created_at": 1776988801000, "color": null, "image": null, "note": null
+    },
+    {
+      "id": "seed_memo_0015", "folder_id": "seed_folder_si_0001",
+      "date": "2026-04-24", "text": "꽃이 지기로소니 바람을 탓하랴 — 조지훈, 낙화",
+      "created_at": 1776988802000, "color": null, "image": null, "note": null
+    },
+    {
+      "id": "seed_memo_0016", "folder_id": "seed_folder_gl_0002",
+      "date": "2026-04-24", "text": "행복한 가정은 모두 비슷하지만, 불행한 가정은 저마다의 이유로 불행하다. — 톨스토이, 안나 카레니나",
+      "created_at": 1776988803000, "color": "#B388FF", "image": null, "note": null
+    },
+    {
+      "id": "seed_memo_0017", "folder_id": "seed_folder_si_0001",
+      "date": "2026-04-24", "text": "어느 먼 곳의 그리운 소식이기에 이 한밤 소리 없이 흩날리느뇨 — 김광균, 설야",
+      "created_at": 1776988804000, "color": null, "image": null, "note": null
+    }
+  ]
+}
