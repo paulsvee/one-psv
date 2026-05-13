@@ -19,7 +19,15 @@
       "WebFetch(domain:raw.githubusercontent.com)",
       "WebFetch(domain:github.com)",
       "Bash(gh api *)",
-      "WebFetch(domain:api.github.com)"
+      "WebFetch(domain:api.github.com)",
+      "Bash(vercel --prod)",
+      "Bash(vercel link *)",
+      "Bash(sqlite3 data/one-psv.db \".tables\")",
+      "Bash(vercel env *)",
+      "Bash(ls \"C:\\\\Users\\\\ntoya\\\\Desktop\\\\creative\\\\web\\\\\" 2>/dev/null)",
+      "Bash(ls /c/Users/ntoya/Desktop/creative/web/)",
+      "Bash(node --input-type=module)",
+      "WebFetch(domain:localhost)"
     ]
   }
 }

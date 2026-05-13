@@ -704,8 +704,6 @@ export default function Page() {
   const [deleteTarget, setDeleteTarget] = useState<Folder | null>(null);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [noteMemoId, setNoteMemoId] = useState<string | null>(null);
-  const [showSettingsMenu, setShowSettingsMenu] = useState(false);
-  const settingsMenuRef = useRef<HTMLDivElement>(null);
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dropTarget, setDropTarget] = useState<DropTarget>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -947,19 +945,8 @@ export default function Page() {
   const handleClickEmpty = (d: string) => { setDateVal(d); inputRef.current?.focus(); };
 
   const today = new Date();
-  const todayLabel = `${today.getFullYear()}.${String(today.getMonth() + 1).padStart(2, "0")}.${String(today.getDate()).padStart(2, "0")}`;
-  const noteMemo = noteMemoId ? state.memos.find(m => m.id === noteMemoId) ?? null : null;
+const noteMemo = noteMemoId ? state.memos.find(m => m.id === noteMemoId) ?? null : null;
 
-  useEffect(() => {
-    if (!showSettingsMenu) return;
-    const handler = (e: MouseEvent) => {
-      if (settingsMenuRef.current && !settingsMenuRef.current.contains(e.target as Node)) {
-        setShowSettingsMenu(false);
-      }
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, [showSettingsMenu]);
 
   if (!hydrated) return null;
 
@@ -1123,7 +1110,7 @@ export default function Page() {
             </div>
 
             {/* 로그인/로그아웃 버튼 */}
-            <div style={{ display: "flex", alignItems: "center", flexShrink: 0 }}>
+            <div style={{ display: "flex", alignItems: "center", flexShrink: 0, marginLeft: 6 }}>
               {isLoggedIn ? (
                 <button
                   className="psv-sidebar-iconbtn"
@@ -1153,34 +1140,24 @@ export default function Page() {
               )}
             </div>
 
-            {/* ⋯ 설정 메뉴 */}
-            <div style={{ position: "relative", flexShrink: 0 }} ref={settingsMenuRef}>
-              <button
-                className="psv-kebab-btn"
-                onClick={() => setShowSettingsMenu(v => !v)}
-                title="설정"
-              >
-                <svg width="4" height="18" viewBox="0 0 4 18" fill="none">
-                  <circle cx="2" cy="2" r="2" fill="currentColor"/>
-                  <circle cx="2" cy="9" r="2" fill="currentColor"/>
-                  <circle cx="2" cy="16" r="2" fill="currentColor"/>
+            {/* 다크/라이트 토글 버튼 */}
+            <button
+              className="psv-sidebar-iconbtn"
+              onClick={() => setTheme(t => t === "dark" ? "light" : "dark")}
+              title={theme === "dark" ? "라이트 모드" : "다크 모드"}
+              style={{ width: 30, height: 30, borderRadius: "50%", flexShrink: 0 }}
+            >
+              {theme === "dark" ? (
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="5" stroke="currentColor" strokeWidth="2"/>
+                  <path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                 </svg>
-              </button>
-              {showSettingsMenu && (
-                <div className="psv-settings-dropdown" onClick={e => e.stopPropagation()}>
-                  <div className="psv-settings-label">
-                    <span style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 11, color: "var(--point)", letterSpacing: "0.05em", opacity: 0.8 }}>{todayLabel}</span>
-                  </div>
-                  <button
-                    className="psv-settings-item"
-                    onClick={() => { setTheme(t => t === "dark" ? "light" : "dark"); setShowSettingsMenu(false); }}
-                  >
-                    <span>{theme === "dark" ? "☀︎" : "☾"}</span>
-                    <span>{theme === "dark" ? "라이트 모드" : "다크 모드"}</span>
-                  </button>
-                </div>
+              ) : (
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
               )}
-            </div>
+            </button>
           </div>
 
             {/* PANELS */}
