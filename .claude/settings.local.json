@@ -14,7 +14,12 @@
       "Bash(vercel whoami *)",
       "Bash(vercel redeploy *)",
       "Bash(node -e ' *)",
-      "Bash(vercel logs *)"
+      "Bash(vercel logs *)",
+      "Bash(vercel ls *)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:github.com)",
+      "Bash(gh api *)",
+      "WebFetch(domain:api.github.com)"
     ]
   }
 }
