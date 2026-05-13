@@ -4,7 +4,7 @@ import { updateNeonFolder, deleteNeonFolder } from "@/lib/neon";
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const email = await getOwnerEmail(req);
+    const email = await getOwnerEmail();
     const body = await req.json();
     const next: { name?: string; image?: string | null } = {};
     if (body.name !== undefined) {
@@ -21,7 +21,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 
 export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const email = await getOwnerEmail(req);
+    const email = await getOwnerEmail();
     if (email) await deleteNeonFolder(email, params.id);
     return NextResponse.json({ ok: true });
   } catch (e: any) {

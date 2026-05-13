@@ -3,10 +3,9 @@ import { getOwnerEmail } from "@/lib/getAuthToken";
 import { getNeonFolders, upsertNeonFolder, seedPersonalData, getSeedData } from "@/lib/neon";
 import { randomUUID } from "crypto";
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
-    const email = await getOwnerEmail(req);
-
+    const email = await getOwnerEmail();
     if (email) {
       let folders = await getNeonFolders(email);
       if (folders.length === 0) {
@@ -15,7 +14,6 @@ export async function GET(req: NextRequest) {
       }
       return NextResponse.json({ folders });
     }
-
     const seed = getSeedData();
     const folders = seed.folders.map((f) => ({
       id: f.id, name: f.name, image: f.image,
@@ -30,7 +28,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const email = await getOwnerEmail(req);
+    const email = await getOwnerEmail();
     const body = await req.json();
     const { name, id: clientId, image = null } = body;
     if (!name?.trim()) return NextResponse.json({ error: "name required" }, { status: 400 });

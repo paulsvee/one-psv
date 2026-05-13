@@ -4,7 +4,7 @@ import { updateNeonMemo, deleteNeonMemo } from "@/lib/neon";
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const email = await getOwnerEmail(req);
+    const email = await getOwnerEmail();
     const body = await req.json();
     const next: { text?: string; folderId?: string | null; date?: string; color?: string | null; image?: string | null; note?: string | null } = {};
     if (body.text !== undefined) {
@@ -25,7 +25,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 
 export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const email = await getOwnerEmail(req);
+    const email = await getOwnerEmail();
     if (email) await deleteNeonMemo(email, params.id);
     return NextResponse.json({ ok: true });
   } catch (e: any) {
