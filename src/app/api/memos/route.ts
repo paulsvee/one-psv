@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getToken } from "next-auth/jwt";
 import { getNeonMemos, upsertNeonMemo, getSeedData } from "@/lib/neon";
 import { randomUUID } from "crypto";
 
@@ -9,10 +8,12 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const folderId = searchParams.get("folderId");
 
-    const session = await getServerSession(authOptions);
-    if (session?.user?.email) {
+    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+    const email = token?.email as string | undefined;
+
+    if (email) {
       const memos = await getNeonMemos(
-        session.user.email,
+        email,
         folderId && folderId !== "all" ? folderId : null
       );
       return NextResponse.json({ memos });
@@ -32,17 +33,13 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+    const email = token?.email as string | undefined;
+
     const body = await req.json();
     const {
-      folderId,
-      date,
-      text,
-      id: clientId,
-      createdAt,
-      color = null,
-      image = null,
-      note = null,
+      folderId, date, text, id: clientId, createdAt,
+      color = null, image = null, note = null,
     } = body;
 
     if (!date || !text?.trim()) {
@@ -55,13 +52,12 @@ export async function POST(req: NextRequest) {
     const id = clientId ?? randomUUID();
     const now = typeof createdAt === "number" ? createdAt : Date.now();
 
-    if (session?.user?.email) {
-      await upsertNeonMemo(session.user.email, {
+    if (email) {
+      await upsertNeonMemo(email, {
         id, folderId: folderId ?? null, date, text: text.trim(), createdAt: now,
         color, image, note,
       });
     }
-    // 비로그인: 저장 안 하고 OK만 반환
     return NextResponse.json({
       id, folder_id: folderId ?? null, date, text: text.trim(),
       created_at: now, color, image, note,

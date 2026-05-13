@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getToken } from "next-auth/jwt";
 import { getNeonAppTitle, setNeonAppTitle } from "@/lib/neon";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (session?.user?.email) {
-      const appTitle = await getNeonAppTitle(session.user.email);
+    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+    const email = token?.email as string | undefined;
+
+    if (email) {
+      const appTitle = await getNeonAppTitle(email);
       return NextResponse.json({ appTitle });
     }
     return NextResponse.json({ appTitle: "One" });
@@ -18,10 +19,12 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+    const email = token?.email as string | undefined;
+
     const { appTitle } = await req.json();
-    if (session?.user?.email) {
-      await setNeonAppTitle(session.user.email, typeof appTitle === "string" ? appTitle : "One");
+    if (email) {
+      await setNeonAppTitle(email, typeof appTitle === "string" ? appTitle : "One");
     }
     return NextResponse.json({ ok: true });
   } catch (e: any) {

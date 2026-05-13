@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\ntoya\\\\Desktop\\\\creative\\\\web\\\\one-psv\\\\.claude\\\\worktrees\\\\angry-stonebraker-dd06a6\" -Recurse -File)",
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "PowerShell(head -150)",
+      "Bash(npm install *)",
+      "Bash(mkdir -p \"C:\\\\Users\\\\ntoya\\\\Desktop\\\\creative\\\\web\\\\one-psv\\\\.claude\\\\worktrees\\\\angry-stonebraker-dd06a6\\\\src\\\\app\\\\api\\\\auth\\\\[...nextauth]\")",
+      "Bash(npm run *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "Bash(node -e \"console.log\\(require\\('crypto'\\).randomBytes\\(32\\).toString\\('base64'\\)\\)\")"
+    ]
+  }
+}

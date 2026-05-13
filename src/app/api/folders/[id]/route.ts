@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getToken } from "next-auth/jwt";
 import { updateNeonFolder, deleteNeonFolder } from "@/lib/neon";
 
 export async function PATCH(
@@ -8,7 +7,9 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions);
+    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+    const email = token?.email as string | undefined;
+
     const body = await req.json();
     const next: { name?: string; image?: string | null } = {};
     if (body.name !== undefined) {
@@ -19,8 +20,8 @@ export async function PATCH(
     }
     if ("image" in body) next.image = body.image ?? null;
 
-    if (session?.user?.email) {
-      await updateNeonFolder(session.user.email, params.id, next);
+    if (email) {
+      await updateNeonFolder(email, params.id, next);
     }
     return NextResponse.json({ ok: true });
   } catch (e: any) {
@@ -29,13 +30,15 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions);
-    if (session?.user?.email) {
-      await deleteNeonFolder(session.user.email, params.id);
+    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+    const email = token?.email as string | undefined;
+
+    if (email) {
+      await deleteNeonFolder(email, params.id);
     }
     return NextResponse.json({ ok: true });
   } catch (e: any) {
