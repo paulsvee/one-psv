@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState, useCallback } from "react";
+import { useSession, signIn, signOut } from "next-auth/react";
 import ColorImageOverlay from "../components/ColorImageOverlay";
 import { DotsIcon } from "../components/icons";
 
@@ -676,6 +677,9 @@ function FolderItem({ folder, isActive, memoCount, latestMemoText, onSelect, onD
 
 // ── Page ──────────────────────────────────────────────────────
 export default function Page() {
+  const { data: session, status: sessionStatus } = useSession();
+  const isLoggedIn = sessionStatus === "authenticated";
+
   const [state, setState]           = useState<AppState>(() => seed());
   const [hydrated, setHydrated]     = useState(false);
   const [theme, setTheme]           = useState<"dark"|"light">(() => {
@@ -707,60 +711,12 @@ export default function Page() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const loaded = loadLegacyState();
-    setState(loaded);
-    if (loaded.appTitle) document.title = loaded.appTitle;
-
-    // ── SQLite 자동 마이그레이션 ────────────────────────────────
-    (async () => {
-      try {
-        // 서버 DB에 폴더가 이미 있으면 마이그레이션 불필요
-        const check = await fetch("/api/folders").catch(() => null);
-        if (!check?.ok) { setHydrated(true); return; }
-        await check.json();
-
-        const shouldSync =
-          loaded.folders.length > 0 || loaded.memos.length > 0 || (!!loaded.appTitle && loaded.appTitle !== "One");
-
-        if (shouldSync) {
-          await fetch("/api/settings", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ appTitle: loaded.appTitle || "One" }),
-          }).catch(() => {});
-          // 폴더 먼저 (FK 참조)
-          for (const f of loaded.folders) {
-            await fetch("/api/folders", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ id: f.id, name: f.name, image: f.image ?? null }),
-            }).catch(() => {});
-          }
-          // 메모
-          for (const m of loaded.memos) {
-            await fetch("/api/memos", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                id: m.id,
-                folderId: m.folderId ?? null,
-                text: m.text,
-                date: m.date,
-                createdAt: m.createdAt,
-                color: m.color ?? null,
-                image: m.image ?? null,
-                note: m.note ?? null,
-              }),
-            }).catch(() => {});
-          }
-        }
-      } catch { /* 무시 */ }
-      setHydrated(true);
-    })();
+    setHydrated(true);
   }, []);
 
   useEffect(() => {
     if (!hydrated) return;
+    if (sessionStatus === "loading") return;
 
     (async () => {
       try {
@@ -806,7 +762,7 @@ export default function Page() {
         try { localStorage.removeItem(STORAGE_KEY); } catch {}
       } catch {}
     })();
-  }, [hydrated]);
+  }, [hydrated, sessionStatus]);
 
   // 탭 타이틀 동기화
   useEffect(() => {
@@ -1164,6 +1120,40 @@ export default function Page() {
                 onKeyDown={e => { if (e.key === "Enter") addMemo(); }}
                 placeholder="메모를 입력하고 Enter…" maxLength={200}
                 style={{ flex: 1, background: "transparent", border: "none", outline: "none", color: "var(--input-text)", fontFamily: "'Noto Sans KR',sans-serif", fontSize: 14, padding: "0 4px" }} />
+            </div>
+
+            {/* 로그인/로그아웃 버튼 */}
+            <div style={{ display: "flex", alignItems: "center", gap: 4, flexShrink: 0 }}>
+              <span style={{ fontSize: 10, color: "var(--text3)", fontFamily: "'JetBrains Mono',monospace", opacity: 0.7 }}>
+                {isLoggedIn ? "개인" : "샘플"}
+              </span>
+              {isLoggedIn ? (
+                <button
+                  className="psv-sidebar-iconbtn"
+                  onClick={() => signOut()}
+                  title="로그아웃"
+                  style={{ width: 30, height: 30, borderRadius: "50%" }}
+                >
+                  {/* 전원 아이콘 */}
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 3v9" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/>
+                    <path d="M6.34 6.34A9 9 0 1 0 17.66 6.34" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/>
+                  </svg>
+                </button>
+              ) : (
+                <button
+                  className="psv-sidebar-iconbtn"
+                  onClick={() => signIn("google")}
+                  title="로그인"
+                  style={{ width: 30, height: 30, borderRadius: "50%" }}
+                >
+                  {/* 키 아이콘 */}
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <circle cx="8" cy="15" r="4" stroke="currentColor" strokeWidth="2"/>
+                    <path d="M12 11l8-4 1 2-2 1 1 2-2 1-1.5-2.5L12 13" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+              )}
             </div>
 
             {/* ⋯ 설정 메뉴 */}

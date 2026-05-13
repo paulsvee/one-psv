@@ -1,12 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getMemos, createMemo } from "@/lib/db";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { getNeonMemos, upsertNeonMemo, getSeedData } from "@/lib/neon";
 import { randomUUID } from "crypto";
 
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const folderId = searchParams.get("folderId");
-    const memos = getMemos(folderId && folderId !== "all" ? folderId : undefined);
+
+    const session = await getServerSession(authOptions);
+    if (session?.user?.email) {
+      const memos = await getNeonMemos(
+        session.user.email,
+        folderId && folderId !== "all" ? folderId : null
+      );
+      return NextResponse.json({ memos });
+    }
+
+    // 비로그인: 공용 샘플
+    const seed = getSeedData();
+    const memos =
+      folderId && folderId !== "all"
+        ? seed.memos.filter((m) => m.folder_id === folderId)
+        : seed.memos;
     return NextResponse.json({ memos });
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });
@@ -15,6 +32,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
     const body = await req.json();
     const {
       folderId,
@@ -35,26 +53,18 @@ export async function POST(req: NextRequest) {
     }
 
     const id = clientId ?? randomUUID();
-    createMemo({
-      id,
-      folderId: folderId ?? null,
-      date,
-      text: text.trim(),
-      createdAt: typeof createdAt === "number" ? createdAt : undefined,
-      color,
-      image,
-      note,
-    });
+    const now = typeof createdAt === "number" ? createdAt : Date.now();
 
+    if (session?.user?.email) {
+      await upsertNeonMemo(session.user.email, {
+        id, folderId: folderId ?? null, date, text: text.trim(), createdAt: now,
+        color, image, note,
+      });
+    }
+    // 비로그인: 저장 안 하고 OK만 반환
     return NextResponse.json({
-      id,
-      folder_id: folderId ?? null,
-      date,
-      text: text.trim(),
-      created_at: createdAt ?? Date.now(),
-      color,
-      image,
-      note,
+      id, folder_id: folderId ?? null, date, text: text.trim(),
+      created_at: now, color, image, note,
     });
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });

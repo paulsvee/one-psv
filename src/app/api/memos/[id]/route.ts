@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { updateMemo, deleteMemo } from "@/lib/db";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { updateNeonMemo, deleteNeonMemo } from "@/lib/neon";
 
 export async function PATCH(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
+    const session = await getServerSession(authOptions);
     const body = await req.json();
     const next: {
       text?: string;
@@ -28,7 +31,9 @@ export async function PATCH(
     if ("image" in body) next.image = body.image ?? null;
     if ("note" in body) next.note = body.note ?? null;
 
-    updateMemo(params.id, next);
+    if (session?.user?.email) {
+      await updateNeonMemo(session.user.email, params.id, next);
+    }
     return NextResponse.json({ ok: true });
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });
@@ -40,7 +45,10 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    deleteMemo(params.id);
+    const session = await getServerSession(authOptions);
+    if (session?.user?.email) {
+      await deleteNeonMemo(session.user.email, params.id);
+    }
     return NextResponse.json({ ok: true });
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });
