@@ -1,12 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getToken } from "next-auth/jwt";
+import { getOwnerEmail } from "@/lib/getAuthToken";
 import { getNeonAppTitle, setNeonAppTitle } from "@/lib/neon";
 
 export async function GET(req: NextRequest) {
   try {
-    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
-    const email = token?.email as string | undefined;
-
+    const email = await getOwnerEmail(req);
     if (email) {
       const appTitle = await getNeonAppTitle(email);
       return NextResponse.json({ appTitle });
@@ -19,13 +17,9 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
-    const email = token?.email as string | undefined;
-
+    const email = await getOwnerEmail(req);
     const { appTitle } = await req.json();
-    if (email) {
-      await setNeonAppTitle(email, typeof appTitle === "string" ? appTitle : "One");
-    }
+    if (email) await setNeonAppTitle(email, typeof appTitle === "string" ? appTitle : "One");
     return NextResponse.json({ ok: true });
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });
