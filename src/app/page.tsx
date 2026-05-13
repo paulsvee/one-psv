@@ -1123,10 +1123,7 @@ export default function Page() {
             </div>
 
             {/* 로그인/로그아웃 버튼 */}
-            <div style={{ display: "flex", alignItems: "center", gap: 4, flexShrink: 0 }}>
-              <span style={{ fontSize: 10, color: "var(--text3)", fontFamily: "'JetBrains Mono',monospace", opacity: 0.7 }}>
-                {isLoggedIn ? "개인" : "샘플"}
-              </span>
+            <div style={{ display: "flex", alignItems: "center", flexShrink: 0 }}>
               {isLoggedIn ? (
                 <button
                   className="psv-sidebar-iconbtn"
